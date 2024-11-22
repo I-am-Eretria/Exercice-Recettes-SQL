@@ -21,10 +21,9 @@ SELECT
     category.category_name AS Catégorie,
     recipe.recipe_name AS Recette,
     recipe.preparation_time AS Temps_De_Préparation,
-    recipe_ingredients.quantity AS Quantité
+    COUNT(recipe_ingredients.quantity) AS Quantité
 FROM 
-    category,
-    recipe_ingredients
+    category
 INNER JOIN
     recipe
 ON
@@ -33,6 +32,15 @@ INNER JOIN
     recipe_ingredients
 ON
     recipe_ingredients.id_ingredient = recipe.id_ingredient
+
+GROUP BY  id_recipe
+
+
+
+
+COUNT()
+GROUP BY
+
 
 
 
@@ -50,7 +58,7 @@ WHERE preparation_time >=30
 SELECT recipe_name, ingredient_name FROM recipe, ingredient
 WHERE 
 
-
+FINIR
 
 
 -- 5- Insérer une nouvelle recette : « Pâtes à la carbonara » dont la durée de réalisation est de 20 min avec les instructions
@@ -88,13 +96,10 @@ WHERE id_recipe = 5
 SELECT id_ingredient, quantity, price FROM recipe_ingredients, ingredient 
 WHERE id_recipe = 5
 
+FINIR
 
 
 -- 10- Ajouter un ingrédient en base de données : Poivre, unité : cuillère à café, prix : 2.5 €
-
-
-
-
 -- 11- Modifier le prix de l’ingrédient n°12 (prix à votre convenance) 
 -- 12- Afficher le nombre de recettes par catégories : X entrées, Y plats, Z desserts 
 -- 13- Afficher les recettes qui contiennent l’ingrédient « Poulet » 
