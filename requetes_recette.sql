@@ -1,14 +1,39 @@
 -- 1- Afficher toutes les recettes disponibles (nom de la recette, catégorie et temps de préparation) triées de façon décroissante 
 -- sur la durée de réalisation 
 
-SELECT category_name, recipe_name, preparation_time  FROM category, recipe
+SELECT 
+    category.category_name AS Catégorie,
+    recipe.recipe_name AS Recette,
+    recipe.preparation_time AS Temps_De_Préparation
+FROM 
+    category
+INNER JOIN
+    recipe
+ON
+    recipe.id_category = category.id_category
+
 ORDER BY preparation_time DESC
 
 
 -- 2- En modifiant la requête précédente, faites apparaître le nombre d’ingrédients nécessaire par recette. 
 
-SELECT category_name, recipe_name, preparation_time, quantity FROM category, recipe, recipe_ingredients
-ORDER BY preparation_time DESC
+SELECT 
+    category.category_name AS Catégorie,
+    recipe.recipe_name AS Recette,
+    recipe.preparation_time AS Temps_De_Préparation,
+    recipe_ingredients.quantity AS Quantité
+FROM 
+    category,
+    recipe_ingredients
+INNER JOIN
+    recipe
+ON
+    recipe.id_category = category.id_category
+INNER JOIN
+    recipe_ingredients
+ON
+    recipe_ingredients.id_ingredient = recipe.id_ingredient
+
 
 
 -- 3- Afficher les recettes qui nécessitent au moins 30 min de préparation 
