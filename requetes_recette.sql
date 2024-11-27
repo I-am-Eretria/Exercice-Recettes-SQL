@@ -101,14 +101,30 @@ WHERE id_recipe = 3
 
 -- 7- Supprimer la recette n°2 de la base de données 
 
-DELETE FROM recipe
+DELETE FROM recipe                          -- Pour supprimer proprement une recette
+WHERE id_recipe = 2                         -- on supprime la recette 
+
+DELETE FROM recipe_ingredients              -- et les enregistrements correspondant à la recette n°2 dans "recipe_ingredients"
 WHERE id_recipe = 2
 
 
 -- 8- Afficher le prix total de la recette n°5 
 
-SELECT SUM(price) FROM ingredient, recipe
-WHERE id_recipe = 5
+SELECT 
+    recipe.recipe_name AS Recette,  
+    SUM(ingredient.price * recipe_ingredients.quantity) AS Prix_Total
+FROM                                                         
+    recipe                              
+INNER JOIN                                                             
+    recipe_ingredients
+ON 
+    recipe.id_recipe = recipe_ingredients.id_recipe                          
+INNER JOIN 
+    ingredient
+ON 
+    recipe_ingredients.id_ingredient = ingredient.id_ingredient
+WHERE 
+    recipe.id_recipe = 5
 
 
 -- 9- Afficher le détail de la recette n°5 (liste des ingrédients, quantités et prix) 
@@ -214,8 +230,12 @@ GROUP BY
 
 -- 16- Afficher la / les recette(s) les plus rapides à préparer 
 
-SELECT recipe_name, preparation_time FROM recipe
-WHERE preparation_time <=15
+SELECT 
+    recipe_name AS La_Les_Recette_s_Les_Plus_Rapide_s
+FROM 
+    recipe
+WHERE 
+    preparation_time = (SELECT MIN(preparation_time) FROM recipe)
 
 
 -- 17- Trouver les recettes qui ne nécessitent aucun ingrédient (par exemple la recette de la tasse d’eau chaude qui consiste à verser de l’eau chaude dans une tasse) 
