@@ -71,9 +71,9 @@ INSERT INTO ingredient (id_ingredient, ingredient_name, unity, price)
  (48, 'Parmesan râpé', 'g', 0.025);
 
 -- Ajout recette
-INSERT INTO recipe (recipe_name, preparation_time, instructions, id_category)
+INSERT INTO recipe (id_recipe, recipe_name, preparation_time, instructions, id_category)
  VALUES
- ('Pâtes à la carbonara', '20', 
+ (85, 'Pâtes à la carbonara', '20', 
 'Faites cuire les spaghetti dans une grande casserole d’eau bouillante salée selon les instructions du paquet (environ 10 minutes).
 Pendant ce temps, faites revenir les lardons fumés dans une poêle sans ajouter de matière grasse, jusqu’à ce qu’ils soient dorés.
 Dans un bol, battez les œufs avec le parmesan râpé. Ajoutez une pincée de poivre.
@@ -220,8 +220,35 @@ WHERE preparation_time <=15
 
 -- 17- Trouver les recettes qui ne nécessitent aucun ingrédient (par exemple la recette de la tasse d’eau chaude qui consiste à verser de l’eau chaude dans une tasse) 
 
-ajout recette sans ingrédients ?
-IS NULL ?
+-- Ajout recette
+INSERT INTO recipe (id_recipe, recipe_name, preparation_time, instructions, id_category)
+ VALUES
+ (90, "Tasse d'eau chaude", '20', "Verser de l'eau chaude dans une tasse.", 1);
+
+
+-- ICI on n'utilisera pas INNER JOIN car c'est une jointure interne pour retourner les enregistrements quand la condition est vrai dans les 2 tables.
+-- OR on veut trouver et afficher quelque chose même si la condition n’est pas vérifié dans l’autre table.
+
+-- Afficher les recettes sans ingrédients
+SELECT 
+    recipe.recipe_name AS Recette,                          
+    ingredient.ingredient_name AS Nom_Ingrédient,           
+    recipe_ingredients.quantity AS Quantité                                                               
+FROM 
+    recipe                                                              -- Table de gauche : recipe           
+LEFT JOIN                                                  
+    recipe_ingredients                                                  -- Table de droite : recipe_ingredients
+ON 
+    recipe.id_recipe = recipe_ingredients.id_recipe                           
+LEFT JOIN 
+    ingredient
+ON 
+    recipe_ingredients.id_ingredient = ingredient.id_ingredient        
+WHERE 
+    recipe_ingredients.id_recipe IS NULL
+
+-- LEFT JOIN met en avant toutes les recettes et identifie clairement celles sans ingrédients en attribuant des valeurs NULL 
+-- à recipe_ingredients ou ingredient.
 
 
 -- 18- Trouver les ingrédients qui sont utilisés dans au moins 3 recettes 
@@ -256,5 +283,31 @@ INSERT INTO recipe_ingredients (quantity, id_ingredient, id_recipe)
 
 -- 20- Bonus : Trouver la recette la plus coûteuse de la base de données (il peut y avoir des ex aequo, il est donc exclu d’utiliser la clause LIMIT) 
 
-DESC puis séléction celle plus en haut dans la classement ?
+
+-- Sous-requête : faire le coût total de chaque recette
+WITH Cout_Total_Recette AS (
+    SELECT 
+        recipe.recipe_name AS Recette,                          
+        SUM(ingredient.price * recipe_ingredients.quantity) AS Coût_Total
+    FROM                                                         
+        recipe                              
+    INNER JOIN                                                             
+        recipe_ingredients
+    ON 
+        recipe.id_recipe = recipe_ingredients.id_recipe                          
+    INNER JOIN 
+        ingredient
+    ON 
+        recipe_ingredients.id_ingredient = ingredient.id_ingredient
+    GROUP BY 
+        recipe.recipe_name
+)
+-- Requête principale: trouver la recette la plus coûteuse de la base de données 
+SELECT 
+    Recette, 
+    Coût_Total
+FROM 
+    Cout_Total_Recette
+WHERE 
+    Coût_Total = (SELECT MAX(Coût_Total) FROM Cout_Total_Recette);
 
