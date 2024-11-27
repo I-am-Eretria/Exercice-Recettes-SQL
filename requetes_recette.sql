@@ -129,9 +129,9 @@ WHERE
 
 -- 10- Ajouter un ingrédient en base de données : Poivre, unité : cuillère à café, prix : 2.5 €
 
-INSERT INTO ingredient (ingredient_name, unity, price)
+INSERT INTO ingredient (id_ingredient, ingredient_name, unity, price)
  VALUES
- ('Poivre', 'cuillère à café', 2,5);
+ (70, 'Poivre', 'cuillère à café', 2,5);
  
 
 -- 11- Modifier le prix de l’ingrédient n°12 (prix à votre convenance) 
@@ -220,14 +220,25 @@ WHERE preparation_time <=15
 
 -- 17- Trouver les recettes qui ne nécessitent aucun ingrédient (par exemple la recette de la tasse d’eau chaude qui consiste à verser de l’eau chaude dans une tasse) 
 
-
-
+ajout recette sans ingrédients ?
+IS NULL ?
 
 
 -- 18- Trouver les ingrédients qui sont utilisés dans au moins 3 recettes 
 
-
-
+SELECT 
+    ingredient.ingredient_name AS Nom_Ingrédient,
+    COUNT(recipe_ingredients.id_ingredient) AS Utilisé_Dans_Combien_De_Recettes
+FROM 
+    recipe_ingredients
+INNER JOIN 
+    ingredient 
+ON 
+    recipe_ingredients.id_ingredient = ingredient.id_ingredient
+GROUP BY 
+    recipe_ingredients.id_ingredient
+HAVING 
+    COUNT(recipe_ingredients.id_ingredient) >= 3
 
 
 -- 19- Ajouter un nouvel ingrédient à une recette spécifique 
@@ -245,5 +256,5 @@ INSERT INTO recipe_ingredients (quantity, id_ingredient, id_recipe)
 
 -- 20- Bonus : Trouver la recette la plus coûteuse de la base de données (il peut y avoir des ex aequo, il est donc exclu d’utiliser la clause LIMIT) 
 
+DESC puis séléction celle plus en haut dans la classement ?
 
- 
