@@ -25,8 +25,8 @@ SELECT
     category.category_name AS Catégorie,
     recipe.recipe_name AS Recette,
     recipe.preparation_time AS Temps_De_Préparation,
-    COUNT(recipe_ingredients.quantity) AS Quantité          -- Fonction SQL qui permet de compter ici ma quantité d'ingrédients par recette
-FROM 
+    COUNT(recipe_ingredients.id_recipe) AS nbIngredients    -- Fonction SQL qui permet de compter ici ma quantité d'ingrédients par recette
+FROM                                                        -- On compte combien de fois "id_recipe" apparaît dans la table associative "recipe_ingredients" pour savoir le nombre d'ingrédients par recette
     category
 INNER JOIN
     recipe
@@ -37,34 +37,11 @@ INNER JOIN
 ON
     recipe_ingredients.id_recipe = recipe.id_recipe         -- Lien entre la table recipe_ingredients et recipe via id_recipe
 
-GROUP BY  id_recipe
-
-
-
-
-
-SELECT 
-    category.category_name AS Catégorie,
-    recipe.recipe_name AS Recette,
-    recipe.preparation_time AS Temps_De_Préparation,
-    COUNT(recipe_ingredients.quantity) AS Quantité          
-FROM 
-    category
-INNER JOIN
-    recipe
-ON
-    recipe.id_category = category.id_category               
-INNER JOIN
-    recipe_ingredients
-ON
-    recipe_ingredients.id_recipe = recipe.id_recipe         
-
-GROUP BY  id_recipe   -- HELP ici + est ce que le inner join est bon? j'ai un peude mal à trouver la logique epour l'instant
-
-
-
-COUNT()
-GROUP BY
+GROUP BY 
+    recipe.id_recipe,                                       -- ici on veut regrouper les ingrédients par recette (unique)
+    Catégorie,                                              -- ensuite on ajoute les colonnes car elles sont dans SELECT mais ne sont pas avec une fonction d'aggrégation (ici COUNT)
+    Recette,
+    Temps_De_Préparation;
 
 
 -- 3- Afficher les recettes qui nécessitent au moins 30 min de préparation 
@@ -75,17 +52,11 @@ WHERE preparation_time >=30
 
 -- 4- Afficher  les  recettes  dont  le  nom  contient  le  mot  « Salade »  (peu  importe  où  est  situé  le  mot  en question)
 
-SELECT recipe_name, ingredient_name FROM ingredient
+SELECT recipe_name
 
-INNER JOIN
-    recipe
-ON
-     = 
+FROM recipe
 
 WHERE recipe_name LIKE '%Salade%';
-
-
--- HELP ici pareil j'ai du mal avec la logique du inner join 
 
 
 -- 5- Insérer une nouvelle recette : « Pâtes à la carbonara » dont la durée de réalisation est de 20 min avec les instructions
@@ -124,11 +95,12 @@ INSERT INTO recipe_ingredients (quantity, id_ingredient, id_recipe)
 -- je ne l'ai pas testé pour ne pas faire n'importe quoi dans ma bdd
 
 
-
 -- 6- Modifier  le  nom  de  la  recette  ayant  comme  identifiant  id_recette  =  3  (nom  de  la  recette  à  votre convenance) 
 
 UPDATE recipe
+
 SET recipe_name = 'Poulet au Citron et Herbes à la Provençale'
+
 WHERE id_recipe = 3
 
 
@@ -146,10 +118,18 @@ WHERE id_recipe = 5
 
 -- 9- Afficher le détail de la recette n°5 (liste des ingrédients, quantités et prix) 
 
-SELECT id_ingredient, quantity, price FROM recipe_ingredients, ingredient 
-WHERE id_recipe = 5
-
-FINIR
+SELECT 
+    ingredient.ingredient_name AS Nom_Ingrédient,
+    recipe_ingredients.quantity AS Quantité,
+    ingredient.price AS Prix
+FROM 
+    recipe_ingredients
+INNER JOIN 
+    ingredient
+ON 
+    recipe_ingredients.id_ingredient = ingredient.id_ingredient         -- Lien entre la table recipe_ingredients et ingredient via id_ingredient 
+WHERE 
+    id_recipe = 5;
 
 
 -- 10- Ajouter un ingrédient en base de données : Poivre, unité : cuillère à café, prix : 2.5 €
@@ -168,22 +148,79 @@ WHERE id_ingredient = 12
 
 -- 12- Afficher le nombre de recettes par catégories : X entrées, Y plats, Z desserts 
 
+SELECT 
+    category.category_name AS Catégorie,
+    COUNT(recipe.id_category) AS nbRecetteParCatégorie      
+FROM                                                        
+    category
+INNER JOIN
+    recipe
+ON
+    recipe.id_category = category.id_category               
+GROUP BY 
+    recipe.id_category,                                       
+    Catégorie;                                             
 
 
--- 13- Afficher les recettes qui contiennent l’ingrédient « Poulet » 
+-- 13- Afficher les recettes qui contiennent l’ingrédient « Oeuf » 
 
+SELECT 
+    recipe.recipe_name AS Recette,                          -- recipe (puisqu'on a besoin d'afficher recipe_name)
+    ingredient.ingredient_name AS Nom_Ingrédient,           -- ingredient (puisqu'on travaille sur le nom de l'ingrédient)
+    recipe_ingredients.quantity AS Quantité                 -- recipe_ingredients qui fait le lien entre les tables recipe et ingredient
+                                                            -- donc -> 3 tables = 2 jointures
+FROM 
+    recipe                              
+INNER JOIN                                                  -- Il faut repérer les champs communs entre les tables 
+    recipe_ingredients
+ON 
+    recipe.id_recipe = recipe_ingredients.id_recipe                     -- Entre recipe et recipe_ingredients c'est "id_recipe"          
+INNER JOIN 
+    ingredient
+ON 
+    recipe_ingredients.id_ingredient = ingredient.id_ingredient         -- Entre ingredient et recipe_ingredients c'est "id_ingredients"
+WHERE 
+    ingredient_name LIKE '%Oeuf%';
 
 
 -- 14- Mettez à jour toutes les recettes en diminuant leur temps de préparation de 5 minutes  
 
+UPDATE recipe
+SET preparation_time = preparation_time - 5
 
 
 -- 15- Afficher les recettes qui ne nécessitent pas d’ingrédients coûtant plus de 2€ par unité de mesure 
 
+SELECT DISTINCT
+    recipe.recipe_name AS Recette,                          -- recipe (puisqu'on a besoin d'afficher recipe_name)
+    ingredient.ingredient_name AS Nom_Ingrédient,           -- ingredient (puisqu'on travaille sur le nom de l'ingrédient)
+    ingredient.unity AS Unité_De_Mesure,                    -- ingredient (unité de mesure)
+    ingredient.price AS Prix,                               -- ingredient (prix)
+    recipe_ingredients.quantity AS Quantité                 -- recipe_ingredients qui fait le lien entre les tables recipe et ingredient
+FROM                                                        -- donc -> 3 tables = 2 jointures
+    recipe                              
+INNER JOIN                                                              -- Il faut repérer les champs communs entre les tables 
+    recipe_ingredients
+ON 
+    recipe.id_recipe = recipe_ingredients.id_recipe                     -- Entre recipe et recipe_ingredients c'est "id_recipe"          
+INNER JOIN 
+    ingredient
+ON 
+    recipe_ingredients.id_ingredient = ingredient.id_ingredient         -- Entre ingredient et recipe_ingredients c'est "id_ingredients"
+WHERE 
+    ingredient.price <=2
+GROUP BY 
+    recipe.id_recipe,                                 -- ici on veut regrouper les ingrédients par recette (unique)      
+    Nom_Ingrédient,                                             
+    Unité_De_Mesure,
+    Prix,
+    Quantité;   
 
 
 -- 16- Afficher la / les recette(s) les plus rapides à préparer 
 
+SELECT recipe_name, preparation_time FROM recipe
+WHERE preparation_time <=15
 
 
 -- 17- Trouver les recettes qui ne nécessitent aucun ingrédient (par exemple la recette de la tasse d’eau chaude qui consiste à verser de l’eau chaude dans une tasse) 
