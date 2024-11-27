@@ -227,15 +227,6 @@ WHERE preparation_time <=15
 -- 18- Trouver les ingrédients qui sont utilisés dans au moins 3 recettes 
 
 
-WHERE ne fonctionne pas, on utilise HAVING
-astuce : COUNT sur colonneA, GROUP BY sur colonneA (du bon sens)
-
-SELECT ingredient.nomIngredient, COUNT(composition.idIngredient)
-FROM composition
-INNER JOIN ingredient ON composition.idIngredient = ingredient.idIngredient
-GROUP BY composition.idIngredient
-HAVING COUNT(composition.idIngredient) >= 3
-
 
 
 
