@@ -64,11 +64,11 @@ WHERE recipe_name LIKE '%Salade%';
 
 
 -- Ajout ingrédients 
-INSERT INTO ingredient (ingredient_name, unity, price)
+INSERT INTO ingredient (id_ingredient, ingredient_name, unity, price)
  VALUES
- ('Spaghetti', 'g', 0,003),
- ('Lardons fumés', 'g', 0,0133)
- ('Parmesan râpé', 'g', 0,025);
+ (46, 'Spaghetti', 'g', 0.003),
+ (47, 'Lardons fumés', 'g', 0.0133)
+ (48, 'Parmesan râpé', 'g', 0.025);
 
 -- Ajout recette
 INSERT INTO recipe (recipe_name, preparation_time, instructions, id_category)
@@ -85,14 +85,9 @@ Servez immédiatement avec du parmesan supplémentaire et du poivre au goût.', 
 INSERT INTO recipe_ingredients (quantity, id_ingredient, id_recipe)
  VALUES
  (3, 19, 13),
- (400, 45, 13),
- (150, 46, 13),
- (100, 47, 13);
-
-
--- Question : si je ne précise pas le numéro pour l'id dans la partie "ajout ingrédients" et "ajout recette", est-ce que cela va mettre automatiquement le numéro suivant 
--- (par exemple le dernier est 10, il va mettre 11, 12 et 13 pour mes ingrédients?)
--- je ne l'ai pas testé pour ne pas faire n'importe quoi dans ma bdd
+ (400, 46, 13),
+ (150, 47, 13),
+ (100, 48, 13);
 
 
 -- 6- Modifier  le  nom  de  la  recette  ayant  comme  identifiant  id_recette  =  3  (nom  de  la  recette  à  votre convenance) 
@@ -226,10 +221,35 @@ WHERE preparation_time <=15
 -- 17- Trouver les recettes qui ne nécessitent aucun ingrédient (par exemple la recette de la tasse d’eau chaude qui consiste à verser de l’eau chaude dans une tasse) 
 
 
+
+
+
 -- 18- Trouver les ingrédients qui sont utilisés dans au moins 3 recettes 
 
 
+WHERE ne fonctionne pas, on utilise HAVING
+astuce : COUNT sur colonneA, GROUP BY sur colonneA (du bon sens)
+
+SELECT ingredient.nomIngredient, COUNT(composition.idIngredient)
+FROM composition
+INNER JOIN ingredient ON composition.idIngredient = ingredient.idIngredient
+GROUP BY composition.idIngredient
+HAVING COUNT(composition.idIngredient) >= 3
+
+
+
+
 -- 19- Ajouter un nouvel ingrédient à une recette spécifique 
+
+-- Ajout ingrédient
+INSERT INTO ingredient (id_ingredient, ingredient_name, unity, price)
+ VALUES
+ (45, 'Emmental rapé', 'g', 0.02)
+
+-- Ajout ingrédient dans recette
+INSERT INTO recipe_ingredients (quantity, id_ingredient, id_recipe)
+ VALUES
+ (10, 45, 4);
 
 
 -- 20- Bonus : Trouver la recette la plus coûteuse de la base de données (il peut y avoir des ex aequo, il est donc exclu d’utiliser la clause LIMIT) 
